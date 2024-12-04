@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drag and Drop</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            height: 100vh;
+            margin: 0;
+        }
+        
+        .dropzone {
+            width: 90%;
+            height: 200px;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            background-color: #f9f9f9;
+        }
+        
+        .box-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .box {
+            width: 100px;
+            height: 100px;
+            background-color: #007BFF;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            cursor: grab;
+            user-select: none;
+        }
+        
+        .box:active {
+            cursor: grabbing;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dropzone" id="dropzone">
+        Drag items here
+    </div>
+    <div class="box-container">
+        <div class="box" draggable="true" id="box1">Box 1</div>
+        <div class="box" draggable="true" id="box2">Box 2</div>
+        <div class="box" draggable="true" id="box3">Box 3</div>
+    </div>
+
+    <script>
+        const dropzone = document.getElementById('dropzone');
+        const boxes = document.querySelectorAll('.box');
+
+        boxes.forEach(box => {
+            box.addEventListener('dragstart', dragStart);
+        });
+
+        dropzone.addEventListener('dragover', dragOver);
+        dropzone.addEventListener('drop', drop);
+
+        function dragStart(event) {
+            event.dataTransfer.setData('text', event.target.id);
+        }
+
+        function dragOver(event) {
+            event.preventDefault();
+        }
+
+        function drop(event) {
+            event.preventDefault();
+            const boxId = event.dataTransfer.getData('text');
+            const box = document.getElementById(boxId);
+
+            if (!dropzone.contains(box)) {
+                dropzone.appendChild(box);
+            } else {
+                const boxesInZone = [...dropzone.children];
+                const draggedOverBox = boxesInZone.find(b => {
+                    const rect = b.getBoundingClientRect();
+                    return event.clientX > rect.left && event.clientX < rect.right &&
+                        event.clientY > rect.top && event.clientY < rect.bottom;
+                });
+
+                if (draggedOverBox && draggedOverBox !== box) {
+                    dropzone.insertBefore(box, draggedOverBox);
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
